@@ -21,6 +21,7 @@
 
 windows_package node[:pgina][:application_string] do
   source node[:pgina][:installer_url]
+  options "/Silent"
   action :install
 end
 
@@ -192,24 +193,39 @@ registry_key ldap_plugin do
   ]
   action :create
 end
-
 # Gateway
-always_groups = node[:pgina][:ldap][:always_add_to_groups]
-add_groups_if = node[:pgina][:ldap][:add_to_groups_if]
-add_groups_if_not = node[:pgina][:ldap][:add_to_groups_not_if]
-rules = ldap_gateway_group_rules(always_groups, add_groups_if, add_groups_if_not)
+=begin
+#Doesn't work anymore
+# always_groups = node[:pgina][:ldap][:always_add_to_groups]
+# add_groups_if = node[:pgina][:ldap][:add_to_groups_if]
+# add_groups_if_not = node[:pgina][:ldap][:add_to_groups_not_if]
+# rules = ldap_gateway_group_rules(always_groups, add_groups_if, add_groups_if_not)
 
+
+# registry_key ldap_plugin do 
+  # values [ 
+    # {
+      # :name => "GroupGatewayRules",
+      # :type => :multi_string,
+      # :data => rules
+    # }
+  # ]
+  # action :create
+# end
+=end
 
 registry_key ldap_plugin do 
   values [ 
     {
       :name => "GroupGatewayRules",
       :type => :multi_string,
-      :data => rules
+      :data => node[:pgina][:ldap][:group_gateway_rules]
     }
   ]
   action :create
 end
+
+
 
 # -------
 
@@ -230,3 +246,6 @@ registry_key pGina3 do
   only_if { node[:pgina][:ldap][:enabled] }
   action :create
 end
+
+
+
